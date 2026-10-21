@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamDeck Dashboard</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d0e12;
+            color: #ffffff;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* Sidebar layout styling */
+        .sidebar {
+            width: 220px;
+            background-color: #15171e;
+            border-right: 1px solid #262936;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 10px;
+        }
+        .sidebar h3 {
+            color: #8a8d98;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            padding-left: 10px;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #a0a5b5;
+            padding: 12px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background-color: #ff3e6c;
+            color: #ffffff;
+        }
+        /* Main workspace styling */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .player-container {
+            width: 100%;
+            height: 55%;
+            background-color: #000000;
+            border-bottom: 2px solid #15171e;
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .grid-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .grid-title {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            color: #ffffff;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+        }
+        .media-card {
+            background-color: #15171e;
+            border: 1px solid #262936;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .media-card:hover {
+            transform: translateY(-3px);
+            border-color: #ff3e6c;
+        }
+        .media-card .icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+        .media-card h4 {
+            margin: 0;
+            font-size: 14px;
+            color: #e2e4e9;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="sidebar">
+        <h3>Library Filter</h3>
+        <button class="nav-btn active" onclick="switchCategory('movies', this)">🎬 Movies</button>
+        <button class="nav-btn" onclick="switchCategory('anime', this)">🎌 Anime Shows</button>
+    </div>
+
+    <!-- MAIN PLATFORM INTERFACE -->
+    <div class="main-content">
+        <!-- Persistent Player Framework -->
+        <div class="player-container">
+            <iframe id="mainEmbedPlayer" src="about:blank" allowfullscreen></iframe>
+        </div>
+
+        <!-- Grid layout changing dynamically -->
+        <div class="grid-container">
+            <h2 id="sectionTitle" class="grid-title">Available Movies</h2>
+            <div id="mediaGrid" class="cards-grid">
+                <!-- Cards injected automatically by script below -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Local content datasets populated via public URLs
+        const mediaData = {
+            movies: [
+                { title: "Spider-Man: No Way Home", url: "https://vidsrc.sh" },
+                { title: "Interstellar", url: "https://vidsrc.sh" },
+                { title: "The Dark Knight", url: "https://vidsrc.sh" }
+            ],
+            anime: [
+                { title: "Solo Leveling (Trailer)", url: "https://youtube.com" },
+                { title: "Spy × Family (Clip)", url: "https://mozilla.net" }
+            ]
+        };
+
+        function loadGrid(category) {
+            const grid = document.getElementById('mediaGrid');
+            grid.innerHTML = ''; // Clear prior entries
+            
+            const icon = category === 'movies' ? '🎬' : '🎌';
+            
+            mediaData[category].forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'media-card';
+                card.onclick = () => {
+                    document.getElementById('mainEmbedPlayer').src = item.url;
+                };
+                card.innerHTML = `
+                    <div class="icon">${icon}</div>
+                    <h4>${item.title}</h4>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function switchCategory(category, buttonElement) {
+            // Update active states on sidebar items
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            buttonElement.classList.add('active');
+            
+            // Adjust Section Heading & Content
+            document.getElementById('sectionTitle').innerText = category === 'movies' ? 'Available Movies' : 'Anime Collection';
+            loadGrid(category);
+        }
+
+        // Initialize display configuration on app startup
+        loadGrid('movies');
+    </script>
+
+</body>
+</html>
